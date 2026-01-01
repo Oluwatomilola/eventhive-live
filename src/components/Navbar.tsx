@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Wallet, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -44,12 +44,9 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Connect Wallet Button */}
+          {/* Connect Wallet Button - Reown AppKit */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="hero" size="default" className="gap-2">
-              <Wallet className="w-4 h-4" />
-              Connect Wallet
-            </Button>
+            <appkit-button />
           </div>
 
           {/* Mobile Menu Button */}
@@ -82,10 +79,9 @@ export function Navbar() {
                     {link.label}
                   </a>
                 ))}
-                <Button variant="hero" className="w-full gap-2">
-                  <Wallet className="w-4 h-4" />
-                  Connect Wallet
-                </Button>
+                <div className="pt-2">
+                  <appkit-button />
+                </div>
               </div>
             </motion.div>
           )}

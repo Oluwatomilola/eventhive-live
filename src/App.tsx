@@ -4,6 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Web3Provider } from "@/lib/web3";
 import Index from "./pages/Index";
+import EventDetails from "./pages/EventDetails";
+import CreateEvent from "./pages/CreateEvent";
+import MyTickets from "./pages/MyTickets";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
@@ -14,6 +17,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/event/:id" element={<EventDetails />} />
+          <Route path="/create" element={<CreateEvent />} />
+          <Route path="/my-tickets" element={<MyTickets />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 
 const events = [
   {
+    id: "1",
     title: "Crypto Music Festival 2025",
     date: "Jan 15, 2025",
     location: "Los Angeles, CA",
@@ -11,6 +12,7 @@ const events = [
     image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&h=600&fit=crop",
   },
   {
+    id: "2",
     title: "Web3 Developer Summit",
     date: "Feb 20, 2025",
     location: "San Francisco, CA",
@@ -19,6 +21,7 @@ const events = [
     image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop",
   },
   {
+    id: "3",
     title: "NFT Art Exhibition",
     date: "Mar 10, 2025",
     location: "New York, NY",
@@ -27,6 +30,7 @@ const events = [
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
   },
   {
+    id: "4",
     title: "DeFi Conference 2025",
     date: "Apr 5, 2025",
     location: "Miami, FL",
@@ -63,7 +67,7 @@ export function FeaturedEvents() {
         {/* Events Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {events.map((event, index) => (
-            <EventCard key={index} {...event} index={index} />
+            <EventCard key={event.id} {...event} index={index} />
           ))}
         </div>
       </div>

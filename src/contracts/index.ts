@@ -24,6 +24,10 @@ export const CONTRACT_ADDRESSES = {
   sepolia: {
     factory: '0x0000000000000000000000000000000000000000' as const,
   },
+  // Base Sepolia Testnet
+  baseSepolia: {
+    factory: '0x0000000000000000000000000000000000000000' as const,
+  },
 } as const;
 
 // Helper to get factory address by chain ID
@@ -39,6 +43,8 @@ export function getFactoryAddress(chainId: number): `0x${string}` | null {
       return CONTRACT_ADDRESSES.base.factory;
     case 11155111:
       return CONTRACT_ADDRESSES.sepolia.factory;
+    case 84532: // Base Sepolia
+      return CONTRACT_ADDRESSES.baseSepolia.factory;
     default:
       return null;
   }

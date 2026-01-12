@@ -1,73 +1,182 @@
-# Welcome to your Lovable project
+# Event NFT Ticketing Platform
 
-## Project info
+A decentralized event management and ticketing system built on Ethereum using ERC-721 NFTs. This project enables organizers to create events and issue NFT-based tickets, while users can securely purchase, transfer, and verify tickets on-chain.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## Overview
 
-There are several ways of editing your application.
+The Event NFT Ticketing Platform consists of two core smart contracts:
 
-**Use Lovable**
+* **EventTicket** – An ERC-721 NFT contract representing tickets for a single event.
+* **EventFactory** – A factory contract that deploys new EventTicket contracts for organizers.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Each event is isolated in its own smart contract, ensuring clean separation of state, ownership, and ticket supply.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## Key Features
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### For Organizers
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+* Create events with custom metadata (name, date, location, description)
+* Define ticket price and maximum ticket supply
+* Mint NFT tickets automatically on purchase
+* Withdraw ticket sale proceeds
+* Mark tickets as used (entry validation)
 
-Follow these steps:
+### For Attendees
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+* Purchase single or multiple tickets
+* Receive tickets as ERC-721 NFTs
+* Transfer tickets freely before use
+* Verify ticket ownership on-chain
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Platform
 
-# Step 3: Install the necessary dependencies.
-npm i
+* Factory pattern for scalable event creation
+* Fully compatible with OpenZeppelin v5
+* Solidity ^0.8.x with modern security defaults
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+---
+
+## Smart Contracts
+
+### EventFactory
+
+Responsible for deploying new EventTicket contracts.
+
+**Responsibilities:**
+
+* Create new events
+* Track all deployed events
+* Track events by organizer
+
+**Key Functions:**
+
+* `createEvent(...)` – Deploy a new event contract
+* `getAllEvents()` – List all events
+* `getOrganizerEvents(address)` – List events created by an organizer
+* `getEventsPaginated(offset, limit)` – Paginated event discovery
+
+---
+
+### EventTicket
+
+ERC-721 NFT contract representing tickets for a single event.
+
+**Responsibilities:**
+
+* Mint NFT tickets
+* Enforce max ticket supply
+* Track used tickets
+* Handle ticket transfers
+* Manage ticket sale funds
+
+**Key Functions:**
+
+* `mintTicket()` – Buy one ticket
+* `mintTickets(uint256 quantity)` – Buy multiple tickets
+* `useTicket(uint256 tokenId)` – Mark ticket as used (organizer only)
+* `getUserTickets(address)` – Fetch tickets owned by a user
+* `withdraw()` – Withdraw ticket sale proceeds
+
+---
+
+## Ticket Lifecycle
+
+1. Organizer creates an event via `EventFactory`
+2. Users purchase tickets (NFTs are minted)
+3. Tickets can be transferred freely
+4. Organizer validates entry by calling `useTicket(tokenId)`
+5. Used tickets cannot be reused
+
+---
+
+## Security Considerations
+
+* Built on Solidity ^0.8.x (overflow checks enabled)
+* Uses OpenZeppelin v5 audited contracts
+* Organizer-only access for sensitive operations
+* Ticket usage tracked on-chain to prevent reuse
+* Ether transfers use `call` (not `transfer`)
+
+---
+
+## Development Setup
+
+### Prerequisites
+
+* Node.js >= 18
+* Foundry or Hardhat
+* Solidity ^0.8.20
+
+### Install Dependencies
+
+```bash
+npm install
 ```
 
-**Edit a file directly in GitHub**
+or
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+forge install
+```
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Compile Contracts
 
-## What technologies are used for this project?
+### Hardhat
 
-This project is built with:
+```bash
+npx hardhat compile
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Foundry
 
-## How can I deploy this project?
+```bash
+forge build
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## Deployment
 
-Yes, you can!
+Deploy `EventFactory` first. Each event will be deployed automatically via the factory.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```solidity
+EventFactory factory = new EventFactory(platformWallet);
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---
+
+## Example Use Cases
+
+* Conferences & Meetups
+* Concerts & Festivals
+* Web3 Hackathons
+* Private Community Events
+* DAO Governance Events
+
+---
+
+## Roadmap
+
+* Secondary marketplace integration
+* QR-code based ticket scanning
+* Off-chain metadata hosting
+* Multi-chain deployments
+* Royalty support (ERC-2981)
+
+---
+
+## License
+
+MIT License
+
+---
+
+## Disclaimer
+
+This project is provided as-is and has not been audited. Use at your own risk. Always conduct a professional security audit before deploying to mainnet.

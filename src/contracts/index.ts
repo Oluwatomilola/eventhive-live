@@ -26,7 +26,7 @@ export const CONTRACT_ADDRESSES = {
   },
   // Base Sepolia Testnet
   baseSepolia: {
-    factory: '0x0000000000000000000000000000000000000000' as const,
+    factory: '0x9825a61361E3bCc1ED55E048a5A026B1301CA7e2' as const,
   },
 } as const;
 

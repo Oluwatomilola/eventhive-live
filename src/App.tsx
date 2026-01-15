@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Web3Provider } from "@/lib/web3";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 import EventDetails from "./pages/EventDetails";
 import CreateEvent from "./pages/CreateEvent";
@@ -10,22 +11,24 @@ import MyTickets from "./pages/MyTickets";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
-  <Web3Provider>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/event/:id" element={<EventDetails />} />
-          <Route path="/create" element={<CreateEvent />} />
-          <Route path="/my-tickets" element={<MyTickets />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </Web3Provider>
+  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <Web3Provider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/event/:id" element={<EventDetails />} />
+            <Route path="/create" element={<CreateEvent />} />
+            <Route path="/my-tickets" element={<MyTickets />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </Web3Provider>
+  </ThemeProvider>
 );
 
 export default App;

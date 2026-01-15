@@ -3,6 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,8 +67,9 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Connect Wallet Button - Reown AppKit */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Theme Toggle & Connect Wallet Button */}
+          <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             <appkit-button />
           </div>
 
@@ -112,7 +114,8 @@ export function Navbar() {
                     </Link>
                   )
                 ))}
-                <div className="pt-2">
+                <div className="pt-2 flex items-center gap-3">
+                  <ThemeToggle />
                   <appkit-button />
                 </div>
               </div>

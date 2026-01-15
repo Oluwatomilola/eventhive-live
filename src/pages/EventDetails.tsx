@@ -3,10 +3,13 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, Ticket, Share2, Heart, ArrowLeft, Clock, Shield } from "lucide-react";
-import { useState } from "react";
+import { Calendar, MapPin, Users, Ticket, Share2, Heart, ArrowLeft, Clock, Shield, Loader2, ExternalLink, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAccount } from "wagmi";
+import { useMintMultipleTickets } from "@/hooks/useMintTicket";
+import { toast } from "sonner";
 
-// Mock event data - in production this would come from your backend
+// Mock event data - in production this would come from your backend/blockchain
 const eventsData: Record<string, {
   id: string;
   title: string;
@@ -21,6 +24,7 @@ const eventsData: Record<string, {
   description: string;
   organizer: string;
   category: string;
+  contractAddress: `0x${string}`;
 }> = {
   "1": {
     id: "1",
@@ -29,13 +33,14 @@ const eventsData: Record<string, {
     time: "6:00 PM - 2:00 AM",
     location: "Los Angeles, CA",
     address: "Staples Center, 1111 S Figueroa St",
-    price: "0.1 ETH",
+    price: "0.001",
     ticketsLeft: 234,
     totalTickets: 1000,
     image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&h=600&fit=crop",
     description: "Join us for the biggest crypto music festival of the year! Experience world-class DJs, immersive NFT art installations, and connect with the Web3 community. Your NFT ticket grants you exclusive access to VIP areas, airdrops, and future event discounts.",
     organizer: "CryptoBeats DAO",
     category: "Music Festival",
+    contractAddress: "0xe81b985A5493F6aCf89E9e1D87BFB5e3E24939a3",
   },
   "2": {
     id: "2",
@@ -44,13 +49,14 @@ const eventsData: Record<string, {
     time: "9:00 AM - 6:00 PM",
     location: "San Francisco, CA",
     address: "Moscone Center, 747 Howard St",
-    price: "0.05 ETH",
+    price: "0.0005",
     ticketsLeft: 89,
     totalTickets: 500,
     image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=600&fit=crop",
     description: "The premier conference for Web3 developers. Learn from industry leaders, participate in hackathons, and network with fellow builders. Your NFT ticket includes workshop access, lunch, and exclusive swag.",
     organizer: "DevDAO",
     category: "Conference",
+    contractAddress: "0xe81b985A5493F6aCf89E9e1D87BFB5e3E24939a3",
   },
   "3": {
     id: "3",
@@ -59,13 +65,14 @@ const eventsData: Record<string, {
     time: "10:00 AM - 8:00 PM",
     location: "New York, NY",
     address: "Chelsea Gallery District",
-    price: "0.08 ETH",
+    price: "0.0008",
     ticketsLeft: 156,
     totalTickets: 300,
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=600&fit=crop",
     description: "Explore cutting-edge digital art from renowned NFT artists. This exclusive exhibition features interactive installations, artist meet-and-greets, and live minting sessions.",
     organizer: "ArtBlocks Collective",
     category: "Art Exhibition",
+    contractAddress: "0xe81b985A5493F6aCf89E9e1D87BFB5e3E24939a3",
   },
   "4": {
     id: "4",
@@ -74,13 +81,14 @@ const eventsData: Record<string, {
     time: "8:00 AM - 5:00 PM",
     location: "Miami, FL",
     address: "Miami Beach Convention Center",
-    price: "0.12 ETH",
+    price: "0.0012",
     ticketsLeft: 45,
     totalTickets: 800,
     image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1200&h=600&fit=crop",
     description: "The definitive DeFi conference bringing together protocols, investors, and innovators. Deep-dive sessions on yield strategies, governance, and the future of decentralized finance.",
     organizer: "DeFi Alliance",
     category: "Conference",
+    contractAddress: "0xe81b985A5493F6aCf89E9e1D87BFB5e3E24939a3",
   },
 };
 
@@ -88,8 +96,60 @@ export default function EventDetails() {
   const { id } = useParams<{ id: string }>();
   const [ticketCount, setTicketCount] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
-
+  
+  const { isConnected, address } = useAccount();
   const event = id ? eventsData[id] : null;
+  
+  const {
+    mintTickets,
+    hash,
+    isPending,
+    isConfirming,
+    isSuccess,
+    error,
+    reset,
+  } = useMintMultipleTickets(event?.contractAddress);
+
+  // Handle mint success/error
+  useEffect(() => {
+    if (isSuccess && hash) {
+      toast.success(
+        <div className="flex flex-col gap-1">
+          <span className="font-medium">NFT Tickets Minted!</span>
+          <a 
+            href={`https://sepolia.basescan.org/tx/${hash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-primary hover:underline flex items-center gap-1"
+          >
+            View on BaseScan <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      );
+    }
+  }, [isSuccess, hash]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message || "Failed to mint tickets");
+      reset();
+    }
+  }, [error, reset]);
+
+  const handleMint = async () => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+    
+    if (!event) return;
+    
+    try {
+      await mintTickets(ticketCount, event.price);
+    } catch (err) {
+      console.error("Mint error:", err);
+    }
+  };
 
   if (!event) {
     return (
@@ -109,6 +169,8 @@ export default function EventDetails() {
   }
 
   const soldPercentage = ((event.totalTickets - event.ticketsLeft) / event.totalTickets) * 100;
+  const totalPrice = (parseFloat(event.price) * ticketCount).toFixed(4);
+  const isMinting = isPending || isConfirming;
 
   return (
     <div className="min-h-screen bg-background">
@@ -302,19 +364,72 @@ export default function EventDetails() {
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-muted-foreground">Total</span>
                     <span className="font-heading text-2xl font-bold">
-                      {(parseFloat(event.price) * ticketCount).toFixed(2)} ETH
+                      {totalPrice} ETH
                     </span>
                   </div>
                 </div>
 
                 {/* Purchase Button */}
-                <Button variant="hero" size="xl" className="w-full gap-2">
-                  <Ticket className="w-5 h-5" />
-                  Mint NFT Ticket
-                </Button>
+                {isSuccess ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-center gap-2 text-green-500 py-3">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-medium">Tickets Minted Successfully!</span>
+                    </div>
+                    <a 
+                      href={`https://sepolia.basescan.org/tx/${hash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button variant="outline" size="lg" className="w-full gap-2">
+                        <ExternalLink className="w-4 h-4" />
+                        View Transaction
+                      </Button>
+                    </a>
+                    <Link to="/my-tickets">
+                      <Button variant="hero" size="lg" className="w-full gap-2 mt-2">
+                        <Ticket className="w-4 h-4" />
+                        View My Tickets
+                      </Button>
+                    </Link>
+                  </div>
+                ) : !isConnected ? (
+                  <div className="space-y-3">
+                    <p className="text-center text-sm text-muted-foreground">
+                      Connect your wallet to mint NFT tickets
+                    </p>
+                    <div className="flex justify-center">
+                      <appkit-button />
+                    </div>
+                  </div>
+                ) : (
+                  <Button 
+                    variant="hero" 
+                    size="xl" 
+                    className="w-full gap-2"
+                    onClick={handleMint}
+                    disabled={isMinting}
+                  >
+                    {isMinting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        {isPending ? "Confirm in Wallet..." : "Minting..."}
+                      </>
+                    ) : (
+                      <>
+                        <Ticket className="w-5 h-5" />
+                        Mint {ticketCount} NFT Ticket{ticketCount > 1 ? "s" : ""}
+                      </>
+                    )}
+                  </Button>
+                )}
 
                 <p className="text-center text-xs text-muted-foreground">
-                  By purchasing, you agree to the terms and conditions
+                  {isConnected ? (
+                    <>Tickets will be minted to {address?.slice(0, 6)}...{address?.slice(-4)}</>
+                  ) : (
+                    "By purchasing, you agree to the terms and conditions"
+                  )}
                 </p>
               </div>
             </motion.div>
